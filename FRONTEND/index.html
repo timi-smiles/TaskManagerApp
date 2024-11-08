@@ -1,56 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Task Manager</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Task Manager</title>
+    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="./index.css">
+    <style>
 
-	<link rel="stylesheet" href="main.css" />
+    </style>
 </head>
 <body>
-	<header>
-		<div class="taskHeader">
-			<h1>Task Manager</h1>
-			<button class="logoutBtn">LOGOUT</button>
-		</div>
-		
-		<form id="new-task-form">
-			<input 
-				type="text" 
-				name="new-task-input" 
-				id="new-task-input" 
-				placeholder="What do you have planned?" />
-			<input 
-				type="submit"
-				id="new-task-submit" 
-				value="Add task" />
-		</form>
-	</header>
-	<main>
-		<section class="task-list">
-			<h2>Tasks</h2>
-
-			<div id="tasks">
-
-				<!-- <div class="task">
-					<div class="content">
-						<input 
-							type="text" 
-							class="text" 
-							value="A new task"
-							readonly>
-					</div>
-					<div class="actions">
-						<button class="edit">Edit</button>
-						<button class="delete">Delete</button>
-					</div>
-				</div> -->
-
-			</div>
-		</section>
-	</main>
-
-	<script src="main.js"></script>
+    <div class="landing-container">
+        <header class="landing-header">
+            <h1>Welcome to Your Task Hub</h1>
+        </header>
+        <div class="landing-content">
+            <p>
+                <span>Effortlessly</span> organize, <span>prioritize</span>, and <span>achieve</span> more.
+            </p>
+            <a href="./signup.html" class="get-started-btn">Get Started</a>
+            <a href="./login.html" class="login-btn">Already have an account? Login</a>
+        </div>
+    </div>
 </body>
 </html>

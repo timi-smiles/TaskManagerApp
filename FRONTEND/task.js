@@ -9,7 +9,7 @@ if(userId) {
 	// Log out button event (Log out user)
     logoutBtn.addEventListener('click', () => {
         sessionStorage.removeItem('userId'); // Clear the user ID from session storage
-        window.location.href = '/FRONTEND/landing.html'; // Redirect to the login page
+        window.location.href = '/FRONTEND/index.html'; // Redirect to the main page
     });
 
 	window.addEventListener('load', () => {
@@ -76,7 +76,7 @@ if(userId) {
 	});
 
 } else {
-    window.location.href = '/FRONTEND/landing.html'
+    window.location.href = '/FRONTEND/index.html'
 }
 
 

@@ -19,7 +19,7 @@ loginForm.addEventListener('submit', async (e) => {
 
             sessionStorage.setItem('userId', userId);
             setTimeout(() => {
-                window.location.href = '/FRONTEND/index.html';
+                window.location.href = '/FRONTEND/task.html';
             }, 1000);
         } else {
             let error = await response.json();
