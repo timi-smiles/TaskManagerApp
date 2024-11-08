@@ -1,0 +1,125 @@
+        /* Container styles */
+        .landing-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--light);
+            background-color: var(--dark);
+            animation: fadeIn 1.5s ease;
+        }
+
+        /* Header styles */
+        .landing-header h1 {
+            font-size: 3.5rem;
+            color: var(--grey);
+            margin-bottom: 1rem;
+            animation: slideDown 1s ease;
+        }
+
+        /* Paragraph styles with animation */
+        .landing-content p {
+            font-size: 1.75rem;
+            color: var(--light);
+            max-width: 600px;
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            font-weight: 300;
+            animation: fadeInUp 1.2s ease;
+        }
+
+        /* Emphasize key words with gradient */
+        .landing-content p span {
+            background-image: linear-gradient(to right, var(--pink), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        /* Button styling with cool hover effect */
+        .get-started-btn, .login-btn {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 1rem 2.5rem;
+            border-radius: 1rem;
+            text-decoration: none;
+            transition: 0.4s ease;
+            position: relative;
+            display: inline-block;
+        }
+
+        /* Get Started button styles */
+        .get-started-btn {
+            background-image: linear-gradient(to right, var(--pink), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border: 2px solid var(--pink);
+            animation: bounceIn 1.4s ease;
+        }
+
+        .get-started-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0px 0px 15px rgba(236, 72, 153, 0.5), 0px 0px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .get-started-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 1rem;
+            background-image: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(139, 92, 246, 0.3));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Glowing pulsing effect */
+        .get-started-btn:hover::before {
+            opacity: 1;
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+
+        /* Login button styles */
+        .login-btn {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: var(--grey);
+            text-decoration: underline;
+        }
+
+        .login-btn:hover {
+            color: var(--pink);
+            transform: scale(1.05);
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulseGlow {
+            from { box-shadow: 0px 0px 20px rgba(236, 72, 153, 0.7), 0px 0px 30px rgba(139, 92, 246, 0.7); }
+            to { box-shadow: 0px 0px 30px rgba(236, 72, 153, 1), 0px 0px 40px rgba(139, 92, 246, 1); }
+        }
