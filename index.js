@@ -96,8 +96,10 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ message: 'Error logging in', error: error.message }));
       }
     }
-    )} else if (req.method === 'POST' && req.url === '/api/users/create-task') { // create task endpoint
-    let body = '';
+    )} else if (req.url.match(/^\/api\/users\/([0-9]+)\/tasks$/) && req.method === 'POST'){ // create task endpoint
+    
+      const userId = parseInt(req.url.split('/')[3], 10);
+      let body = '';
 
     // Collect the request body data
     req.on('data', chunk => {
@@ -106,7 +108,7 @@ const server = http.createServer(async (req, res) => {
 
     req.on('end', async () => {
       try {
-        const { task, userId } = JSON.parse(body);  // Parse the incoming JSON data
+        const { task } = JSON.parse(body);  // Parse the incoming JSON data
 
         // Create a new task
         const newTask =  await prisma.task.create({
@@ -116,105 +118,127 @@ const server = http.createServer(async (req, res) => {
             },
           });
 
+          if (!newTask) {
+            res.writeHead(404, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'User does not exist' }));
+            return;
+        }
+
+
         // Respond with the created task
-        res.statusCode = 201;
-        res.end(JSON.stringify({ message: 'Task created successfully'}));
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(newTask));
       } catch (error) {
-        res.statusCode = 500;
-        res.end(JSON.stringify({ message: error.message }));
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to create task' }));
       }
-    });
-  } else if (req.method === 'PUT' && req.url === '/api/update-task') { // Handle update task endpoint
-    let body = '';
-
-    // Collect the request body data
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-
-    // Once the body is fully received
-    req.on('end', async () => {
+    })} else if (req.url.match(/^\/api\/users\/([0-9]+)\/tasks$/) && req.method === 'GET') { //Handle get operations for tasks 
+      const userId = parseInt(req.url.split('/')[3]);
+  
       try {
-        const { taskId, userId, newTaskDescription } = JSON.parse(body);
-
-        // Validate that taskId, userId, and newTaskDescription are provided
-        if (!taskId || !userId || !newTaskDescription) {
-          res.statusCode = 400;
-          return res.end(JSON.stringify({ message: 'taskId, userId, and newTaskDescription are required' }));
-        }
-
-        // Update the task in the database if it belongs to the specified user
-        const updatedTask = await prisma.task.update({
-          where: {
-            id: taskId,
-            userId: userId  // Ensure the task belongs to the specified user
-          },
-          data: {
-            task: newTaskDescription,  // Update the task description
-          },
-        });
-
-        // Check if the task was found and updated
-        if (updatedTask.count === 0) {
-          res.statusCode = 404;
-          return res.end(JSON.stringify({ message: 'Task not found or user does not have permission to update this task' }));
-        }
-
-        // Respond with a success message
-        res.statusCode = 200;
-        res.end(JSON.stringify({ message: 'Task updated successfully', task: updatedTask }));
-      } catch (error) {
-        console.error('Error updating task:', error);
-        res.statusCode = 500;
-        res.end(JSON.stringify({ message: 'Error updating task', error: error.message }));
-      }
-    })}else  if (req.method === 'DELETE' && req.url === '/api/delete-task') { // Handle delete task endpoint
-        let body = '';
-    
-        // Collect the request body data
-        req.on('data', chunk => {
-          body += chunk.toString();
-        });
-    
-        // Once the body is fully received
-        req.on('end', async () => {
-          try {
-            const { taskId, userId } = JSON.parse(body);
-    
-            // Validate that taskId and userId are provided
-            if (!taskId || !userId) {
-              res.statusCode = 400;
-              return res.end(JSON.stringify({ message: 'taskId and userId are required' }));
-            }
-    
-            // Delete the task from the database if it belongs to the specified user
-            const deletedTask = await prisma.task.delete({
+          // Fetch all tasks for the user
+          const tasks = await prisma.task.findMany({
               where: {
-                id: taskId,
-                userId: userId  // Ensure the task belongs to the specified user
+                  userId: userId, // Filter tasks by the user ID
               },
-            });
-    
-            // Check if the task was found and deleted
-            if (deletedTask.count === 0) {
-              res.statusCode = 404;
-              return res.end(JSON.stringify({ message: 'Task not found or user does not have permission to delete this task' }));
-            }
-    
-            // Respond with a success message
-            res.statusCode = 200;
-            res.end(JSON.stringify({ message: 'Task deleted successfully' }));
-          } catch (error) {
-            console.error('Error deleting task:', error);
-            res.statusCode = 500;
-            res.end(JSON.stringify({ message: 'Error deleting task', error: error.message }));
+          });
+  
+          if (!tasks || tasks.length === 0) {
+              res.writeHead(404, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ message: 'Tasks not found for this user' }));
+              return;
           }
-        })} else {
+  
+          // Return the tasks if found
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(tasks));
+      } catch (error) {
+          // Handle any errors
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Failed to fetch tasks' }));
+      }
+  }else if (req.url.match(/\/api\/users\/([0-9]+)\/tasks\/([0-9]+)/) && req.method === 'PUT') { // Handle Update operation for task
+      const userId = parseInt(req.url.split('/')[3], 10); // Extract userId from URL
+      const taskId = parseInt(req.url.split('/')[5], 10); // Extract taskId from URL
+  
+      let body = '';
+  
+      req.on('data', chunk => {
+          body += chunk.toString();
+      });
+  
+      req.on('end', async () => {
+          try {
+              const { task } = JSON.parse(body); // Get task description from request body
+
+              // Check if the task exists for the given user
+              const existingTask = await prisma.task.findFirst({
+                  where: {
+                      id: taskId,
+                      userId: userId,
+                  },
+              });
+  
+              if (!existingTask) {
+                  res.writeHead(404, { 'Content-Type': 'application/json' });
+                  res.end(JSON.stringify({ error: 'Task not found for this user' }));
+                  return;
+              }
+  
+              // Update the task
+              const updatedTask = await prisma.task.update({
+                  where: { id: taskId },
+                  data: {
+                      task: task, // Updated task description
+                  },
+              });
+  
+              // Respond with the updated task
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ message: 'Task successfully updated', updatedTask }));
+          } catch (error) {
+              res.writeHead(500, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'Failed to update the task' }));
+          }
+      });
+  } else if (req.url.match(/\/api\/users\/([0-9]+)\/tasks\/([0-9]+)/) && req.method === 'DELETE') { // Handle Delete operation for task
+    const userId = parseInt(req.url.split('/')[3], 10); // Extract userId from URL
+    const taskId = parseInt(req.url.split('/')[5], 10); // Extract taskId from URL
+
+    // Check if the task exists for the given user
+    const existingTask = await prisma.task.findUnique({
+        where: {
+            id: taskId,
+            userId: userId,
+        },
+    });
+
+    if (!existingTask) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Task not found for this user' }));
+        return;
+    }
+
+    // Delete the task
+    try {
+        await prisma.task.delete({
+            where: { id: taskId },
+        });
+
+        // Respond with success
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Task successfully deleted' }));
+    } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Failed to delete the task' }));
+    }
+} else {
     // Handle unsupported routes or methods
     res.statusCode = 404;
     res.end(JSON.stringify({ message: 'Route not found' }));
   }
 });
+
 
 // Start the server
 server.listen(PORT, () => {
